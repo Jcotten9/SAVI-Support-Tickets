@@ -55,17 +55,17 @@ function generateUUID(): string {
 
 // ITIL Priority Matrix
 export function calculatePriority(impact: string, urgency: string): 'P1' | 'P2' | 'P3' | 'P4' {
-  if (impact === 'ENTERPRISE') {
+  if (impact === 'COMPLETE_OUTAGE') {
     if (urgency === 'CRITICAL') return 'P1';
     if (urgency === 'HIGH') return 'P1';
     if (urgency === 'MEDIUM') return 'P2';
     return 'P3';
-  } else if (impact === 'DEPARTMENT') {
+  } else if (impact === 'IMPACTING_REVENUE') {
     if (urgency === 'CRITICAL') return 'P1';
     if (urgency === 'HIGH') return 'P2';
     if (urgency === 'MEDIUM') return 'P3';
     return 'P3';
-  } else { // SINGLE_USER
+  } else { // SCHEDULED_UPGRADE
     if (urgency === 'CRITICAL') return 'P2';
     if (urgency === 'HIGH') return 'P3';
     if (urgency === 'MEDIUM') return 'P3';
@@ -257,7 +257,7 @@ function seedInitialData() {
       description: 'Active sessions for developers using the Chicago Edge Firewall are dropping randomly. Tracert results suggest routing loops forming because of Palo Alto security profile checks. Critically affecting remote developers on Tier 1 systems.',
       type: TicketType.INCIDENT,
       priority: 'P1',
-      impact: 'ENTERPRISE',
+      impact: 'COMPLETE_OUTAGE',
       urgency: 'CRITICAL',
       status: IncidentStatus.IN_PROGRESS,
       requesterId: 'usr-req-stewart',
@@ -294,7 +294,7 @@ function seedInitialData() {
       description: 'Review of network routing anomalies since the latest Palo Alto firmware update shows regular TCP reset frames injected at FW-CHICAGO-01. Affects the integrity of internal AD sync and VPN payloads.',
       type: TicketType.PROBLEM,
       priority: 'P2',
-      impact: 'DEPARTMENT',
+      impact: 'IMPACTING_REVENUE',
       urgency: 'HIGH',
       status: ProblemStatus.INVESTIGATING,
       requesterId: 'usr-mgr-pam',
@@ -329,7 +329,7 @@ function seedInitialData() {
       description: 'Request permission to perform immediate rollback of Palo Alto Edge gateway fw-chicago-01 to firmware 10.2 to alleviate the critical routing issues causing active incident tkt-inc-001.',
       type: TicketType.CHANGE,
       priority: 'P1',
-      impact: 'ENTERPRISE',
+      impact: 'COMPLETE_OUTAGE',
       urgency: 'CRITICAL',
       status: ChangeStatus.AWAITING_APPROVAL,
       requesterId: 'usr-agent-t2-alice',
@@ -367,7 +367,7 @@ function seedInitialData() {
       description: 'Requesting access to copilot enterprise subscription for newly onboarded senior backend dev in support team.',
       type: TicketType.SERVICE_REQUEST,
       priority: 'P3',
-      impact: 'SINGLE_USER',
+      impact: 'SCHEDULED_UPGRADE',
       urgency: 'MEDIUM',
       status: RequestStatus.WAITING_FOR_APPROVAL,
       requesterId: 'usr-req-stewart',
@@ -606,7 +606,8 @@ export const db = {
         db.createApproval({
           ticketId: newTicket.id,
           approverId: changeMgr.id,
-          type: 'CAB'
+          type: 'CAB',
+          status: 'PENDING'
         });
       }
     }

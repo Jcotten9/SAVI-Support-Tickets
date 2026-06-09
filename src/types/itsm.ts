@@ -143,7 +143,7 @@ export interface Ticket {
   description: string;
   type: TicketType;
   priority: 'P1' | 'P2' | 'P3' | 'P4';
-  impact: 'ENTERPRISE' | 'DEPARTMENT' | 'SINGLE_USER';
+  impact: 'COMPLETE_OUTAGE' | 'IMPACTING_REVENUE' | 'SCHEDULED_UPGRADE';
   urgency: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
   status: string; // Dynamic based on type
   requesterId: string;

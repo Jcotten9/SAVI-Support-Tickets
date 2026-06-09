@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   AlertCircle, AlertTriangle, CheckCircle2, Clock, Settings, User, Users,
@@ -41,6 +41,7 @@ export default function App() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [reportsMetrics, setReportsMetrics] = useState<any>(null);
+  const [kbArticles, setKbArticles] = useState<KBArticle[]>([]);
 
   // Filter triggers
   const [filterType, setFilterType] = useState<string>('');
@@ -77,7 +78,7 @@ export default function App() {
     title: '',
     description: '',
     priority: 'P3' as const,
-    impact: 'SINGLE_USER' as const,
+    impact: 'SCHEDULED_UPGRADE' as const,
     urgency: 'MEDIUM' as const,
     status: 'NEW',
     relatedAssetId: '',
@@ -133,7 +134,7 @@ export default function App() {
    */
   const fetchData = async () => {
     try {
-      const [u, t, s, sv, a, cat, tk, ap, rep] = await Promise.all([
+      const [u, t, s, sv, a, cat, tk, ap, rep, kb] = await Promise.all([
         fetch('/api/users').then(r => r.json()),
         fetch('/api/teams').then(r => r.json()),
         fetch('/api/sites').then(r => r.json()),
@@ -142,7 +143,8 @@ export default function App() {
         fetch('/api/catalog').then(r => r.json()),
         fetch('/api/tickets').then(r => r.json()),
         fetch('/api/approvals').then(r => r.json()),
-        fetch('/api/reports').then(r => r.json())
+        fetch('/api/reports').then(r => r.json()),
+        fetch('/api/kb').then(r => r.json())
       ]);
 
       setUsers(u);
@@ -154,6 +156,7 @@ export default function App() {
       setTickets(tk);
       setApprovals(ap);
       setReportsMetrics(rep);
+      setKbArticles(kb);
 
       if (currentUser) {
         const nots = await fetch(`/api/notifications/${currentUser.id}`).then(r => r.json());
@@ -234,7 +237,7 @@ export default function App() {
   };
 
   // Create Ticket Submit
-  const handleCreateTicketSubmit = async (e: React.FormEvent) => {
+  const handleCreateTicketSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
 
@@ -284,7 +287,7 @@ export default function App() {
         setIsCreateModalOpen(false);
         // Reset
         setNewTicketData({
-          title: '', description: '', priority: 'P3', impact: 'SINGLE_USER', urgency: 'MEDIUM',
+          title: '', description: '', priority: 'P3', impact: 'SCHEDULED_UPGRADE', urgency: 'MEDIUM',
           status: 'NEW', relatedAssetId: '', relatedServiceId: '', relatedSiteId: '', tags: [],
           internalNotes: '', customerNotes: '', catalogItemId: '', formFields: {}, riskLevel: 'LOW',
           changeType: 'NORMAL', implementationPlan: '', backoutPlan: '', testPlan: ''
@@ -301,7 +304,7 @@ export default function App() {
   };
 
   // Submit Comments
-  const handleAddComment = async (e: React.FormEvent) => {
+  const handleAddComment = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentUser || !selectedTicketId || !commentContent.trim()) return;
 
@@ -392,7 +395,7 @@ export default function App() {
   };
 
   // Knowledge Publish
-  const handlePublishKBArticle = async (e: React.FormEvent) => {
+  const handlePublishKBArticle = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
 
@@ -1937,9 +1940,9 @@ export default function App() {
                       onChange={(e: any) => setNewTicketData({ ...newTicketData, impact: e.target.value })}
                       className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 text-xs text-slate-300"
                     >
-                      <option value="ENTERPRISE">Enterprise Level Outage</option>
-                      <option value="DEPARTMENT">Departmental slowdown</option>
-                      <option value="SINGLE_USER">Single user issue</option>
+                      <option value="COMPLETE_OUTAGE">Complete outage</option>
+                      <option value="IMPACTING_REVENUE">Impacting Revenue</option>
+                      <option value="SCHEDULED_UPGRADE">Can be scheduled for Upgrade</option>
                     </select>
                   </div>
                   <div className="col-span-2 text-[10px] text-sky-400 font-mono italic">
