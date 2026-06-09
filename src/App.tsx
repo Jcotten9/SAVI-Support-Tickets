@@ -11,7 +11,7 @@ import {
   TrendingUp, BarChart3, FileSpreadsheet, Layers, Shield, ShieldAlert,
   HelpCircle, Activity, Bell, CornerDownRight, MoreVertical, Check, X,
   ChevronRight, UserPlus, Cpu, Laptop, Phone, HelpCircle as QuestionMarkIcon,
-  CheckCircle, ArrowRight, Layers as CMDBIcon, RefreshCw
+  CheckCircle, ArrowRight, Layers as CMDBIcon, RefreshCw, ExternalLink
 } from 'lucide-react';
 import {
   UserRole, TicketType, SLAStatus, IncidentStatus, RequestStatus,
@@ -538,6 +538,26 @@ export default function App() {
           <p className="text-slate-400 max-w-2xl mx-auto text-base">
             Enterprise IT Service Management (ITSM) system. Emulate roles across our IT support ecosystem to test SLA compliance, state machines, and standard support operations.
           </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <a
+              href="https://support.savicontrols.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sky-400 hover:text-sky-300 text-sm font-medium transition-colors bg-slate-800/40 hover:bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700/50"
+            >
+              <span>Access SAVI Controls Support Portal</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
+            <a
+              href="https://crm.savicontrols.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sky-400 hover:text-sky-300 text-sm font-medium transition-colors bg-slate-800/40 hover:bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700/50"
+            >
+              <span>Access SAVI CRM Portal</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
         </div>
 
         {/* Dynamic Personas Selection Grid */}
@@ -704,6 +724,28 @@ export default function App() {
             </>
           )}
         </nav>
+
+        {/* Support Portal Link */}
+        <div className="px-4 py-3 border-t border-slate-800 bg-slate-900/50 space-y-2">
+          <a
+            href="https://support.savicontrols.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between text-[11px] text-sky-400 hover:text-sky-300 font-medium transition-colors bg-slate-950/40 hover:bg-slate-950/80 p-2 rounded border border-slate-800/50"
+          >
+            <span>SAVI Support Portal</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+          <a
+            href="https://crm.savicontrols.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between text-[11px] text-sky-400 hover:text-sky-300 font-medium transition-colors bg-slate-950/40 hover:bg-slate-950/80 p-2 rounded border border-slate-800/50"
+          >
+            <span>SAVI CRM Portal</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
 
         {/* Local Sync Indicator */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/20 flex flex-col gap-1 text-[10px] text-slate-500 font-mono">
