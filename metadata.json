@@ -1,0 +1,6 @@
+{
+  "name": "Enterprise ITSM Platform",
+  "description": "An ITIL 4-aligned IT Service Management and ticketing platform, supporting Incident, Request, Problem, and Change workflows, alongside a CMDB and Knowledge Base.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
