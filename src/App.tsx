@@ -221,8 +221,6 @@ export default function App() {
     // Standard role redirects for premium UX workflow
     if (user.role === UserRole.REQUESTER) {
       setActiveTab('catalog');
-    } else if (user.role === UserRole.CHANGE_MANAGER) {
-      setActiveTab('changes');
     } else if (user.role === UserRole.PROBLEM_MANAGER) {
       setActiveTab('problems');
     } else {
@@ -246,8 +244,6 @@ export default function App() {
       subStatus = 'SUBMITTED';
     } else if (newTicketType === TicketType.PROBLEM) {
       subStatus = 'NEW';
-    } else if (newTicketType === TicketType.CHANGE) {
-      subStatus = 'DRAFT';
     }
 
     const payload = {
@@ -470,7 +466,6 @@ export default function App() {
       case TicketType.INCIDENT: return 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full px-2.5 py-0.5 text-[11px] font-medium';
       case TicketType.SERVICE_REQUEST: return 'bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full px-2.5 py-0.5 text-[11px] font-medium';
       case TicketType.PROBLEM: return 'bg-purple-100 text-purple-800 border border-purple-200 rounded-full px-2.5 py-0.5 text-[11px] font-medium';
-      case TicketType.CHANGE: return 'bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-full px-2.5 py-0.5 text-[11px] font-medium';
       default: return 'bg-slate-100 text-slate-800 border border-slate-200 rounded-full px-2.5 py-0.5 text-[11px]';
     }
   };
@@ -538,16 +533,16 @@ export default function App() {
             <Shield className="w-4 h-4 fill-sky-500/20" /> Verified ITIL 4 Service Desk Systems active
           </div>
           <h1 className="text-4xl md:text-5xl font-sans font-black tracking-tight text-white mb-3">
-            Apex Service Management
+            SAVI iQ Support Management
           </h1>
           <p className="text-slate-400 max-w-2xl mx-auto text-base">
-            Enterprise IT Service Management (ITSM) system. Emulate roles across our IT support ecosystem to test SLA compliance, state machines, and change enablement CAB approvals.
+            Enterprise IT Service Management (ITSM) system. Emulate roles across our IT support ecosystem to test SLA compliance, state machines, and standard support operations.
           </p>
         </div>
 
         {/* Dynamic Personas Selection Grid */}
-        <div className="max-w-6xl w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          {users.map(u => {
+        <div className="max-w-6xl w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+          {users.filter(u => u.role !== UserRole.CHANGE_MANAGER).map(u => {
             const team = teams.find(t => t.id === u.teamId);
             return (
               <button
@@ -676,13 +671,6 @@ export default function App() {
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${activeTab === 'problems' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
               >
                 <AlertTriangle className="w-4 h-4" /> Problem Management
-              </button>
-
-              <button
-                onClick={() => { setActiveTab('changes'); setSelectedTicketId(null); }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${activeTab === 'changes' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-              >
-                <Calendar className="w-4 h-4" /> Change Enablement
               </button>
             </>
           )}
@@ -922,82 +910,6 @@ export default function App() {
 
                   </div>
 
-                  {/* Active Changes CAB review roster */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="font-sans font-bold text-sm text-white">Pending Change Advisory CAB Decisions</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">Change tickets awaiting manager review and release schedule windows.</p>
-                      </div>
-                      <span className="text-xs font-mono text-slate-500">{approvals.filter(a => a.status === 'PENDING').length} PENDING GATEWAYS</span>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="border-b border-slate-800 text-slate-400 font-mono text-[10px]">
-                            <th className="pb-2.5 font-medium">CHANGE ID</th>
-                            <th className="pb-2.5 font-medium">CHANGE PROPOSAL</th>
-                            <th className="pb-2.5 font-medium">RISK LEVEL</th>
-                            <th className="pb-2.5 font-medium">TYPE</th>
-                            <th className="pb-2.5 font-medium">GATE APPREHENSION</th>
-                            <th className="pb-2.5 font-medium text-right">ACTION COMMANDS</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/60">
-                          {tickets.filter(t => t.type === TicketType.CHANGE && t.status === ChangeStatus.AWAITING_APPROVAL).map(ch => {
-                            const matchingApproval = approvals.find(a => a.ticketId === ch.id && a.status === 'PENDING');
-                            return (
-                              <tr key={ch.id} className="hover:bg-slate-950/20">
-                                <td className="py-3 font-mono text-slate-400 font-medium">
-                                  <button onClick={() => handleTicketClick(ch.id)} className="hover:underline text-sky-400">
-                                    {ch.id}
-                                  </button>
-                                </td>
-                                <td className="py-3 font-semibold text-slate-200">
-                                  <div>{ch.title}</div>
-                                  <div className="text-[10px] text-slate-500 font-normal line-clamp-1 mt-0.5">{ch.description}</div>
-                                </td>
-                                <td className="py-3">
-                                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${ch.riskLevel === 'HIGH' ? 'bg-red-950 text-red-400 border border-red-900' : 'bg-slate-850 text-slate-400'}`}>
-                                    {ch.riskLevel} RISK
-                                  </span>
-                                </td>
-                                <td className="py-3 font-mono text-slate-400">{ch.changeType}</td>
-                                <td className="py-3 text-slate-400">CAB Board Evaluation</td>
-                                <td className="py-3 text-right">
-                                  {currentUser.role === UserRole.CHANGE_MANAGER || currentUser.role === UserRole.ADMIN ? (
-                                    <div className="flex gap-2 justify-end">
-                                      <button
-                                        onClick={() => matchingApproval && handleApprovalSubmit(matchingApproval.id, 'APPROVED', 'Change authorized safe to schedule.')}
-                                        className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-2 py-1 rounded text-[11px] font-semibold cursor-pointer"
-                                      >
-                                        Authorize Change
-                                      </button>
-                                      <button
-                                        onClick={() => matchingApproval && handleApprovalSubmit(matchingApproval.id, 'REJECTED', 'Change rollback plan is insufficient.')}
-                                        className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-900 px-2 py-1 rounded text-[11px] font-semibold cursor-pointer"
-                                      >
-                                        Reject
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <span className="text-[10px] text-slate-500 italic">Vetting required (Change Manager)</span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                          {tickets.filter(t => t.type === TicketType.CHANGE && t.status === ChangeStatus.AWAITING_APPROVAL).length === 0 && (
-                            <tr>
-                              <td colSpan={6} className="text-center py-6 text-slate-500 italic">No change requests currently pending authorization.</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
                 </div>
               )}
 
@@ -1023,7 +935,6 @@ export default function App() {
                         <option value={TicketType.INCIDENT}>Incidents</option>
                         <option value={TicketType.SERVICE_REQUEST}>Service Requests</option>
                         <option value={TicketType.PROBLEM}>Problems</option>
-                        <option value={TicketType.CHANGE}>Changes</option>
                       </select>
 
                       <select
@@ -1280,64 +1191,7 @@ export default function App() {
                 </div>
               )}
 
-              {/* === TAB: CHANGES BOARD === */}
-              {activeTab === 'changes' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-xl font-sans font-black tracking-tight text-white uppercase flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-indigo-400" /> ITIL 4 Change Enablement
-                      </h2>
-                      <p className="text-xs text-slate-400 mt-0.5 font-sans">Coordinate high-risk releases securely using CAB approval gating structures.</p>
-                    </div>
-                    <button
-                      onClick={() => { setNewTicketType(TicketType.CHANGE); setIsCreateModalOpen(true); }}
-                      className="bg-indigo-500 hover:bg-indigo-600 text-slate-950 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition shadow-lg"
-                    >
-                      <Plus className="w-3.5 h-3.5 stroke-[3]" /> Request Change
-                    </button>
-                  </div>
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                    <h3 className="font-sans font-bold text-sm text-white mb-4">Enterprise Change Execution Board</h3>
-                    
-                    <div className="space-y-4">
-                      {tickets.filter(t => t.type === TicketType.CHANGE).map(ch => (
-                        <div
-                          key={ch.id}
-                          className="bg-slate-950 p-4 border border-slate-850 rounded-xl flex flex-col xl:flex-row xl:items-center justify-between gap-6"
-                        >
-                          <div className="space-y-1.5 min-w-0 flex-1">
-                            <div className="flex items-center gap-2.5 flex-wrap">
-                              <span className="text-[10px] text-slate-500 font-mono">{ch.id}</span>
-                              <span className="bg-indigo-950 text-indigo-400 border border-indigo-900 text-[10px] font-semibold px-2 py-0.5 rounded uppercase">{ch.changeType} CHANGE</span>
-                              <span className="bg-slate-900 text-slate-450 border border-slate-800 text-[10px] font-semibold px-2 py-0.5 rounded uppercase">{ch.status.replace('_', ' ')}</span>
-                            </div>
-                            <h4 className="text-xs font-bold text-slate-200">{ch.title}</h4>
-                            <p className="text-[11px] text-slate-450 line-clamp-2 leading-relaxed">{ch.description}</p>
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2 text-[10px] text-slate-500 font-mono">
-                              <div>Risk evaluation: <span className="font-semibold text-amber-500">{ch.riskLevel}</span></div>
-                              {ch.maintenanceWindowStart && (
-                                <div className="col-span-2">Maintenance Window: <span className="text-slate-300 font-sans">{new Date(ch.maintenanceWindowStart).toLocaleString()}</span></div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 self-end xl:self-center">
-                            <button
-                              onClick={() => handleTicketClick(ch.id)}
-                              className="text-sky-400 hover:underline text-xs font-semibold cursor-pointer"
-                            >
-                              Show Board Record
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* === TAB: KNOWLEDGE BASE === */}
               {activeTab === 'kb' && (
@@ -1506,12 +1360,8 @@ export default function App() {
                           <span className="font-bold text-white">{reportsMetrics.agingIncidentsCount} tickets</span>
                         </div>
                         <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                          <span className="text-slate-400">Total Open queue capacity</span>
+                          <span className="text-slate-450">Total Open queue capacity</span>
                           <span className="font-bold text-white">{tickets.filter(t => t.status !== 'CLOSED').length} tickets</span>
-                        </div>
-                        <div className="flex justify-between text-indigo-400 font-semibold">
-                          <span>CAB Emergency rollbacks triggered</span>
-                          <span>{tickets.filter(t => t.type === TicketType.CHANGE && t.changeType === 'EMERGENCY').length} changes</span>
                         </div>
                       </div>
                     </div>
@@ -1683,42 +1533,7 @@ export default function App() {
                     </>
                   )}
 
-                  {ticketDetails.ticket.type === TicketType.CHANGE && (
-                    <>
-                      {ticketDetails.ticket.status === ChangeStatus.DRAFT && (
-                        <button
-                          onClick={() => handleTransitionClick(ChangeStatus.AWAITING_APPROVAL)}
-                          className="bg-indigo-500 hover:bg-indigo-600 text-slate-950 text-[11px] font-semibold px-2.5 py-1 rounded cursor-pointer transition"
-                        >
-                          Submit to CAB
-                        </button>
-                      )}
-                      {ticketDetails.ticket.status === ChangeStatus.APPROVED && (
-                        <button
-                          onClick={() => handleTransitionClick(ChangeStatus.SCHEDULED)}
-                          className="bg-indigo-505 hover:bg-indigo-600 text-slate-950 text-[11px] font-semibold px-2.5 py-1 rounded cursor-pointer transition"
-                        >
-                          Schedule Change
-                        </button>
-                      )}
-                      {ticketDetails.ticket.status === ChangeStatus.SCHEDULED && (
-                        <button
-                          onClick={() => handleTransitionClick(ChangeStatus.IN_PROGRESS)}
-                          className="bg-sky-500 hover:bg-sky-600 text-slate-950 text-[11px] font-semibold px-2.5 py-1 rounded cursor-pointer transition"
-                        >
-                          Deploy Release
-                        </button>
-                      )}
-                      {ticketDetails.ticket.status === ChangeStatus.IN_PROGRESS && (
-                        <button
-                          onClick={() => handleTransitionClick(ChangeStatus.COMPLETED)}
-                          className="bg-green-500 hover:bg-green-600 text-slate-950 text-[11px] font-semibold px-2.5 py-1 rounded cursor-pointer"
-                        >
-                          Successfully Completed
-                        </button>
-                      )}
-                    </>
-                  )}
+
                 </div>
               </div>
 
@@ -1876,8 +1691,8 @@ export default function App() {
               {/* Type toggle selection box */}
               <div>
                 <label className="text-[10px] font-mono text-slate-400 uppercase block mb-1.5">Sovereign SLA Ticket Category</label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {[TicketType.INCIDENT, TicketType.SERVICE_REQUEST, TicketType.PROBLEM, TicketType.CHANGE].map(type => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {[TicketType.INCIDENT, TicketType.SERVICE_REQUEST, TicketType.PROBLEM].map(type => (
                     <button
                       key={type}
                       type="button"
@@ -1978,63 +1793,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Change management plans details configs input */}
-              {newTicketType === TicketType.CHANGE && (
-                <div className="space-y-3 bg-indigo-950/20 p-4 rounded-xl border border-indigo-900/40">
-                  <div className="text-xs font-semibold text-indigo-400 uppercase tracking-widest leading-none mb-1">Change request execution plans:</div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs text-slate-300 font-medium block mb-1">Change release type</label>
-                      <select
-                        value={newTicketData.changeType}
-                        onChange={(e: any) => setNewTicketData({ ...newTicketData, changeType: e.target.value })}
-                        className="w-full bg-slate-905 border border-slate-800 rounded-lg p-1.5 text-xs text-slate-300"
-                      >
-                        <option value="STANDARD">Standard Change (Pre-Approved)</option>
-                        <option value="NORMAL">Normal Change (CAB review required)</option>
-                        <option value="EMERGENCY">Emergency Release (Expedited)</option>
-                      </select>
-                    </div>
 
-                    <div>
-                      <label className="text-xs text-slate-300 font-medium block mb-1">Risk evaluation rating</label>
-                      <select
-                        value={newTicketData.riskLevel}
-                        onChange={(e: any) => setNewTicketData({ ...newTicketData, riskLevel: e.target.value })}
-                        className="w-full bg-slate-905 border border-slate-800 rounded-lg p-1.5 text-xs text-slate-300"
-                      >
-                        <option value="LOW">Low</option>
-                        <option value="MEDIUM">Medium</option>
-                        <option value="HIGH">High (Mandatory Audit)</option>
-                        <option value="CRITICAL">Critical Outage Danger</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-slate-305 font-semibold block mb-1">Implementation strategy steps</label>
-                    <textarea
-                      value={newTicketData.implementationPlan}
-                      onChange={(e) => setNewTicketData({ ...newTicketData, implementationPlan: e.target.value })}
-                      placeholder="Step by step technical operational playbook..."
-                      rows={2}
-                      className="w-full bg-slate-950 border border-slate-800 focus:outline-none rounded-lg p-2 text-xs text-slate-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-slate-305 font-semibold block mb-1">Backout rollback strategy</label>
-                    <textarea
-                      value={newTicketData.backoutPlan}
-                      onChange={(e) => setNewTicketData({ ...newTicketData, backoutPlan: e.target.value })}
-                      placeholder="What is the rollback mechanism if release failure occurs?"
-                      rows={2}
-                      className="w-full bg-slate-950 border border-slate-800 focus:outline-none rounded-lg p-2 text-xs text-slate-300"
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Service Catalog Dynamic form fields renderer */}
               {newTicketType === TicketType.SERVICE_REQUEST && newTicketData.catalogItemId && (
