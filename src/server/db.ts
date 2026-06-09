@@ -117,6 +117,7 @@ function seedInitialData() {
     { id: 'usr-admin-jack', username: 'jack.admin', email: 'jack@enterprise.io', role: UserRole.ADMIN, avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80' },
     { id: 'usr-agent-t1-bob', username: 'bob.t1', email: 'bob@enterprise.io', role: UserRole.SUPPORT_AGENT_T1, teamId: 'team-t1-servicedesk', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80' },
     { id: 'usr-agent-t2-alice', username: 'alice.t2', email: 'alice@enterprise.io', role: UserRole.SUPPORT_AGENT_T2, teamId: 'team-t2-techops', avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80' },
+    { id: 'usr-agent-t2-bgoertz', username: 'bgoertz.t2', email: 'Bgoertz@saviiq.com', role: UserRole.SUPPORT_AGENT_T2, teamId: 'team-t2-techops', avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80' },
     { id: 'usr-agent-t3-dave', username: 'dave.t3', email: 'dave@enterprise.io', role: UserRole.SUPPORT_AGENT_T3, teamId: 'team-t3-devescalations', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80' },
     { id: 'usr-mgr-charlie', username: 'charlie.change', email: 'charlie@enterprise.io', role: UserRole.CHANGE_MANAGER, teamId: 'team-change-cab', avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80' },
     { id: 'usr-mgr-pam', username: 'pam.problem', email: 'pam@enterprise.io', role: UserRole.PROBLEM_MANAGER, teamId: 'team-problem-mgmt', avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80' },
@@ -513,6 +514,20 @@ export function loadDB() {
       const data = fs.readFileSync(DB_FILE, 'utf-8');
       state = JSON.parse(data);
       console.log('Loaded ITSM DB successfully containing', state.tickets.length, 'root tickets.');
+      
+      // Ensure Bgoertz@saviiq.com is registered if DB already existed
+      if (state.users && !state.users.some(u => u.email.toLowerCase() === 'bgoertz@saviiq.com')) {
+        state.users.push({
+          id: 'usr-agent-t2-bgoertz',
+          username: 'bgoertz.t2',
+          email: 'Bgoertz@saviiq.com',
+          role: UserRole.SUPPORT_AGENT_T2,
+          teamId: 'team-t2-techops',
+          avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
+        });
+        saveDBSync();
+        console.log('Dynamically registered Bgoertz@saviiq.com in loaded database.');
+      }
     } else {
       seedInitialData();
     }
